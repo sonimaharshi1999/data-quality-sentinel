@@ -1,0 +1,147 @@
+# Data Quality Sentinel - Sample Expectations
+# Validates the orders.csv synthetic dataset
+
+suite_name: orders_quality_suite
+description: "Quality checks for the e-commerce orders dataset"
+
+data_source:
+  name: orders_dataset
+  path: ../sample_data/orders.csv
+  format: csv
+
+checks:
+  # Schema checks
+  - name: required_columns_exist
+    check_type: column_exists
+    severity: critical
+    description: "Verify all expected columns are present"
+    params:
+      columns:
+        - order_id
+        - customer_id
+        - customer_email
+        - order_date
+        - order_total
+        - quantity
+        - status
+        - category
+
+  # Row count check
+  - name: minimum_row_count
+    check_type: row_count
+    severity: critical
+    description: "Dataset should have at least 100 rows"
+    params:
+      min: 100
+      max: 100000
+
+  # Null checks
+  - name: order_id_not_null
+    check_type: not_null
+    column: order_id
+    severity: critical
+    description: "Order ID must never be null"
+
+  - name: customer_email_null_rate
+    check_type: not_null
+    column: customer_email
+    severity: warning
+    description: "Customer email null rate should be below 5%"
+    params:
+      threshold: 0.05
+
+  - name: order_total_not_null
+    check_type: not_null
+    column: order_total
+    severity: warning
+    description: "Order total should not be null"
+    params:
+      threshold: 0.03
+
+  # Uniqueness checks
+  - name: order_id_unique
+    check_type: unique
+    column: order_id
+    severity: critical
+    description: "Order IDs should be unique"
+    params:
+      threshold: 0.0
+
+  # Range checks
+  - name: order_total_positive
+    check_type: value_range
+    column: order_total
+    severity: critical
+    description: "Order totals must be positive"
+    params:
+      min: 0.01
+      max: 50000
+
+  - name: quantity_reasonable
+    check_type: value_range
+    column: quantity
+    severity: warning
+    description: "Quantities should be between 1 and 100"
+    params:
+      min: 1
+      max: 100
+
+  # Pattern checks
+  - name: email_format_valid
+    check_type: regex_match
+    column: customer_email
+    severity: warning
+    description: "Emails should match standard format"
+    params:
+      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+
+  - name: order_id_format
+    check_type: regex_match
+    column: order_id
+    severity: info
+    description: "Order IDs should follow ORD-NNNNNN format"
+    params:
+      pattern: "^ORD-\\d{6}$"
+
+  # Allowed values
+  - name: valid_status
+    check_type: allowed_values
+    column: status
+    severity: warning
+    description: "Status must be one of the known values"
+    params:
+      values:
+        - completed
+        - pending
+        - shipped
+        - cancelled
+        - returned
+
+  - name: valid_category
+    check_type: allowed_values
+    column: category
+    severity: info
+    description: "Categories must be from the known set"
+    params:
+      values:
+        - Electronics
+        - Clothing
+        - Books
+        - Home
+        - Sports
+        - Food
+
+  # Length checks
+  - name: customer_id_min_length
+    check_type: min_length
+    column: customer_id
+    severity: warning
+    params:
+      length: 5
+
+  - name: customer_email_max_length
+    check_type: max_length
+    column: customer_email
+    severity: info
+    params:
+      length: 100
