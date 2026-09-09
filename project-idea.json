@@ -1,0 +1,33 @@
+{
+  "project_name": "data-quality-sentinel",
+  "title": "Data Quality Sentinel - Automated Data Validation Framework",
+  "category": "data-engineering",
+  "difficulty": "advanced",
+  "description": "Automated data validation framework. YAML expectations, 12+ check types, statistical anomaly detection, HTML reports with trend tracking.",
+  "tech_stack": [
+    "pandas",
+    "pydantic",
+    "pyyaml",
+    "jinja2",
+    "scipy",
+    "click",
+    "pytest"
+  ],
+  "features": [
+    "YAML validation expectations",
+    "12+ check types",
+    "KS-test anomaly detection",
+    "HTML quality reports",
+    "Trend tracking",
+    "CI/CD exit codes"
+  ],
+  "test_status": "PASSED",
+  "sample_input": {
+    "description": "CSV data and expectations",
+    "example": "sentinel validate --data orders.csv --expectations rules.yaml"
+  },
+  "sample_output": {
+    "description": "Quality report",
+    "example": "Validation: 12/14 checks passed (score: 85.7%)"
+  }
+}
