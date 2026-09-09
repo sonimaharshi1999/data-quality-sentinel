@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Quality Report - {{ report.suite_name }}</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --pass: #22c55e;
+            --pass-bg: #f0fdf4;
+            --fail: #ef4444;
+            --fail-bg: #fef2f2;
+            --warn: #f59e0b;
+            --warn-bg: #fffbeb;
+            --info: #3b82f6;
+            --info-bg: #eff6ff;
+            --accent: #6366f1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+        h2 { font-size: 1.25rem; margin-bottom: 1rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; }
+        .meta { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem; font-size: 0.875rem; color: var(--text-muted); }
+        .meta span { display: flex; align-items: center; gap: 0.25rem; }
+
+        .score-banner {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.5rem 2rem; border-radius: 12px; margin-bottom: 2rem;
+            color: white; font-weight: 600;
+        }
+        .score-banner.pass { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .score-banner.fail { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .score-banner .score { font-size: 2.5rem; }
+        .score-banner .label { font-size: 1.1rem; opacity: 0.9; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 8px; padding: 1.25rem; text-align: center;
+        }
+        .stat-card .value { font-size: 2rem; font-weight: 700; }
+        .stat-card .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-card.pass .value { color: var(--pass); }
+        .stat-card.fail .value { color: var(--fail); }
+        .stat-card.warn .value { color: var(--warn); }
+
+        .section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        th { text-align: left; padding: 0.75rem; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        td { padding: 0.75rem; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+
+        .badge {
+            display: inline-block; padding: 0.125rem 0.5rem;
+            border-radius: 9999px; font-size: 0.75rem; font-weight: 600;
+        }
+        .badge.pass { background: var(--pass-bg); color: #166534; }
+        .badge.fail { background: var(--fail-bg); color: #991b1b; }
+        .badge.warning { background: var(--warn-bg); color: #92400e; }
+        .badge.critical { background: var(--fail-bg); color: #991b1b; }
+        .badge.info { background: var(--info-bg); color: #1e40af; }
+        .badge.anomaly { background: #fef3c7; color: #92400e; }
+        .badge.normal { background: var(--pass-bg); color: #166534; }
+
+        .trend-chart { width: 100%; height: 200px; display: flex; align-items: flex-end; gap: 4px; padding: 1rem 0; }
+        .trend-bar { flex: 1; min-width: 20px; border-radius: 4px 4px 0 0; transition: height 0.3s; position: relative; }
+        .trend-bar:hover::after {
+            content: attr(data-tooltip); position: absolute; bottom: 100%;
+            left: 50%; transform: translateX(-50%); background: var(--text);
+            color: white; padding: 0.25rem 0.5rem; border-radius: 4px;
+            font-size: 0.75rem; white-space: nowrap;
+        }
+
+        .footer { text-align: center; margin-top: 2rem; padding: 1rem; color: var(--text-muted); font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Quality Report</h1>
+        <p class="subtitle">{{ report.suite_name }}</p>
+
+        <div class="meta">
+            <span>Run ID: <strong>{{ report.run_id }}</strong></span>
+            <span>Source: <strong>{{ report.data_source }}</strong></span>
+            <span>Timestamp: <strong>{{ report.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC') }}</strong></span>
+            <span>Duration: <strong>{{ "%.1f"|format(report.execution_time_ms) }}ms</strong></span>
+        </div>
+
+        <div class="score-banner {{ 'pass' if report.passed else 'fail' }}">
+            <div>
+                <div class="label">Overall Quality Score</div>
+                <div>{{ 'PASSED' if report.passed else 'FAILED' }} - {{ report.critical_failures }} critical failure{{ 's' if report.critical_failures != 1 else '' }}</div>
+            </div>
+            <div class="score">{{ "%.1f"|format(report.overall_score) }}%</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="value">{{ report.total_checks }}</div>
+                <div class="label">Total Checks</div>
+            </div>
+            <div class="stat-card pass">
+                <div class="value">{{ report.passed_checks }}</div>
+                <div class="label">Passed</div>
+            </div>
+            <div class="stat-card fail">
+                <div class="value">{{ report.failed_checks }}</div>
+                <div class="label">Failed</div>
+            </div>
+            <div class="stat-card warn">
+                <div class="value">{{ report.warning_checks }}</div>
+                <div class="label">Warnings</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Validation Check Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Check Name</th>
+                        <th>Type</th>
+                        <th>Column</th>
+                        <th>Severity</th>
+                        <th>Message</th>
+                        <th>Rows Failed</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in report.check_results %}
+                    <tr>
+                        <td><span class="badge {{ 'pass' if result.passed else 'fail' }}">{{ 'PASS' if result.passed else 'FAIL' }}</span></td>
+                        <td><strong>{{ result.check_name }}</strong></td>
+                        <td>{{ result.check_type.value }}</td>
+                        <td>{{ result.column or '-' }}</td>
+                        <td><span class="badge {{ result.severity.value }}">{{ result.severity.value|upper }}</span></td>
+                        <td>{{ result.message }}</td>
+                        <td>{{ result.rows_failed }} / {{ result.rows_checked }}</td>
+                        <td>{{ "%.1f"|format(result.execution_time_ms) }}ms</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if report.anomaly_results %}
+        <div class="section">
+            <h2>Anomaly Detection Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Column</th>
+                        <th>Test</th>
+                        <th>P-Value</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for anomaly in report.anomaly_results %}
+                    <tr>
+                        <td><span class="badge {{ 'anomaly' if anomaly.is_anomaly else 'normal' }}">{{ 'ANOMALY' if anomaly.is_anomaly else 'NORMAL' }}</span></td>
+                        <td><strong>{{ anomaly.column }}</strong></td>
+                        <td>{{ anomaly.statistic }}</td>
+                        <td>{{ "%.4f"|format(anomaly.p_value) }}</td>
+                        <td>{{ anomaly.message }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if trend_data %}
+        <div class="section">
+            <h2>Quality Score Trend (Last {{ trend_data|length }} Runs)</h2>
+            <div class="trend-chart">
+                {% for point in trend_data %}
+                <div class="trend-bar"
+                     style="height: {{ point.overall_score }}%; background: {{ '#22c55e' if point.critical_failures == 0 else '#ef4444' }};"
+                     data-tooltip="{{ point.timestamp[:10] }}: {{ '%.1f'|format(point.overall_score) }}%">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            Generated by <strong>Data Quality Sentinel</strong> v1.0.0 | Author: Maharshi Soni
+        </div>
+    </div>
+</body>
+</html>
