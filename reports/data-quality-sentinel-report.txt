@@ -1,0 +1,100 @@
+======================================================================
+  Data Quality Sentinel - Automated Data Validation Framework
+======================================================================
+
+Author: Maharshi Soni
+Category: data-engineering
+Difficulty: advanced
+
+----------------------------------------------------------------------
+DESCRIPTION
+----------------------------------------------------------------------
+Automated data validation framework. YAML expectations, 12+ check types, statistical anomaly detection, HTML reports with trend tracking.
+
+----------------------------------------------------------------------
+TECH STACK
+----------------------------------------------------------------------
+  - pandas
+  - pydantic
+  - pyyaml
+  - jinja2
+  - scipy
+  - click
+  - pytest
+
+----------------------------------------------------------------------
+FEATURES
+----------------------------------------------------------------------
+  * YAML validation expectations
+  * 12+ check types
+  * KS-test anomaly detection
+  * HTML quality reports
+  * Trend tracking
+  * CI/CD exit codes
+
+----------------------------------------------------------------------
+SAMPLE INPUT
+----------------------------------------------------------------------
+  CSV data and expectations
+
+  Example:
+    sentinel validate --data orders.csv --expectations rules.yaml
+
+----------------------------------------------------------------------
+SAMPLE OUTPUT
+----------------------------------------------------------------------
+  Quality report
+
+  Example:
+    Validation: 12/14 checks passed (score: 85.7%)
+
+----------------------------------------------------------------------
+PROJECT STRUCTURE
+----------------------------------------------------------------------
+  .gitignore
+  project-idea.json
+  pyproject.toml
+  README.md
+  .github/workflows/test.yml
+  sample_data/customers_reference.csv
+  sample_data/orders.csv
+  sample_expectations/orders_expectations.yaml
+  src/data_quality_sentinel.egg-info/dependency_links.txt
+  src/data_quality_sentinel.egg-info/entry_points.txt
+  src/data_quality_sentinel.egg-info/PKG-INFO
+  src/data_quality_sentinel.egg-info/requires.txt
+  src/data_quality_sentinel.egg-info/SOURCES.txt
+  src/data_quality_sentinel.egg-info/top_level.txt
+  src/sentinel/anomaly.py
+  src/sentinel/cli.py
+  src/sentinel/engine.py
+  src/sentinel/expectations.py
+  src/sentinel/generate_data.py
+  src/sentinel/models.py
+  src/sentinel/report.py
+  src/sentinel/trend.py
+  src/sentinel/__init__.py
+  src/sentinel/checks/builtin.py
+  src/sentinel/checks/registry.py
+  src/sentinel/checks/__init__.py
+  templates/report.html
+  tests/conftest.py
+  tests/test_anomaly.py
+  tests/test_checks.py
+  tests/test_engine.py
+  tests/test_expectations.py
+  tests/test_report.py
+  tests/test_trend.py
+  tests/__init__.py
+
+----------------------------------------------------------------------
+TEST RESULTS
+----------------------------------------------------------------------
+  Status: PASSED
+  Tests Run: 51
+  Passed: 51
+  Failed: 0
+
+======================================================================
+  Author: Maharshi Soni  |  License: MIT
+======================================================================

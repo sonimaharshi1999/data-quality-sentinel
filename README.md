@@ -1,5 +1,7 @@
 # Data Quality Sentinel
 
+![Tests](https://github.com/sonimaharshi1999/data-quality-sentinel/actions/workflows/test.yml/badge.svg) ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg) ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+
 **Automated Data Validation Framework with Anomaly Detection and Trend Tracking**
 
 Define expectations in YAML. Run validation checks. Detect distribution anomalies. Generate HTML quality reports. Track trends over time. Integrate into CI/CD pipelines with exit codes.
@@ -332,6 +334,25 @@ data-quality-sentinel/
 ```
 
 ---
+
+
+
+---
+
+## Sample Input / Output
+
+![Sample Input and Output](assets/io-card.png)
+
+---
+
+## Project Overview
+
+![Project Summary](assets/report-card.png)
+
+### Reports
+- [HTML Report](reports/data-quality-sentinel-report.html) - interactive report
+- [PDF Report](reports/data-quality-sentinel-report.pdf) - downloadable PDF
+- [TXT Report](reports/data-quality-sentinel-report.txt) - plain text
 
 ## License
 
